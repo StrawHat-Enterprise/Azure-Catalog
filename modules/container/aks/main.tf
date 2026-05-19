@@ -16,28 +16,28 @@ locals {
       network_plugin_mode = null
       network_policy      = "calico"
       network_data_plane  = "azure"
-      pod_cidr            = var.pod_cidr  # Required for kubenet
+      pod_cidr            = var.pod_cidr # Required for kubenet
     }
     azure_cni = {
       network_plugin      = "azure"
       network_plugin_mode = null
       network_policy      = "azure"
       network_data_plane  = "azure"
-      pod_cidr            = null  # Pods use subnet IPs
+      pod_cidr            = null # Pods use subnet IPs
     }
     azure_cni_overlay = {
       network_plugin      = "azure"
       network_plugin_mode = "overlay"
       network_policy      = "azure"
       network_data_plane  = "azure"
-      pod_cidr            = var.pod_cidr  # Default: 192.168.0.0/16
+      pod_cidr            = var.pod_cidr # Default: 192.168.0.0/16
     }
     azure_cni_cilium = {
       network_plugin      = "azure"
       network_plugin_mode = "overlay"
       network_policy      = "cilium"
       network_data_plane  = "cilium"
-      pod_cidr            = var.pod_cidr  # Default: 192.168.0.0/16
+      pod_cidr            = var.pod_cidr # Default: 192.168.0.0/16
     }
     custom = {
       network_plugin      = var.network_plugin
@@ -75,9 +75,9 @@ resource "azurerm_kubernetes_cluster" "this" {
   dns_prefix          = var.dns_prefix != "" ? var.dns_prefix : replace(var.naming.aks_cluster, "-", "")
   node_resource_group = var.node_resource_group != "" ? var.node_resource_group : null
   # Kubernetes Version
-  kubernetes_version         = var.kubernetes_version
-  automatic_upgrade_channel  = var.automatic_channel_upgrade
-  node_os_upgrade_channel    = var.node_os_channel_upgrade
+  kubernetes_version        = var.kubernetes_version
+  automatic_upgrade_channel = var.automatic_channel_upgrade
+  node_os_upgrade_channel   = var.node_os_channel_upgrade
 
   # SKU Tier (Free or Standard)
   sku_tier = var.sku_tier
@@ -91,7 +91,7 @@ resource "azurerm_kubernetes_cluster" "this" {
   dns_prefix_private_cluster = var.private_cluster_enabled ? (var.dns_prefix_private_cluster != "" ? var.dns_prefix_private_cluster : var.dns_prefix) : null
 
   # Azure RBAC
-  local_account_disabled            = var.local_account_disabled
+  local_account_disabled = var.local_account_disabled
   azure_active_directory_role_based_access_control {
     azure_rbac_enabled     = var.azure_rbac_enabled
     admin_group_object_ids = var.admin_group_object_ids
@@ -119,10 +119,10 @@ resource "azurerm_kubernetes_cluster" "this" {
     only_critical_addons_enabled = lookup(var.default_node_pool, "only_critical_addons_enabled", true)
     orchestrator_version         = lookup(var.default_node_pool, "orchestrator_version", var.kubernetes_version)
     temporary_name_for_rotation  = lookup(var.default_node_pool, "temporary_name_for_rotation", "temppool")
-    
+
     # Node labels and taints
     node_labels = lookup(var.default_node_pool, "node_labels", {})
-    
+
     # Upgrade settings
     upgrade_settings {
       max_surge = lookup(var.default_node_pool, "max_surge", "33%")
@@ -177,15 +177,15 @@ resource "azurerm_kubernetes_cluster" "this" {
     pod_cidr            = local.effective_pod_cidr
     outbound_type       = var.outbound_type
     load_balancer_sku   = var.load_balancer_sku
-    
+
     dynamic "load_balancer_profile" {
       for_each = var.load_balancer_profile != null ? [var.load_balancer_profile] : []
       content {
-        managed_outbound_ip_count   = lookup(load_balancer_profile.value, "managed_outbound_ip_count", null)
-        outbound_ip_address_ids     = lookup(load_balancer_profile.value, "outbound_ip_address_ids", null)
-        outbound_ip_prefix_ids      = lookup(load_balancer_profile.value, "outbound_ip_prefix_ids", null)
-        outbound_ports_allocated    = lookup(load_balancer_profile.value, "outbound_ports_allocated", null)
-        idle_timeout_in_minutes     = lookup(load_balancer_profile.value, "idle_timeout_in_minutes", null)
+        managed_outbound_ip_count = lookup(load_balancer_profile.value, "managed_outbound_ip_count", null)
+        outbound_ip_address_ids   = lookup(load_balancer_profile.value, "outbound_ip_address_ids", null)
+        outbound_ip_prefix_ids    = lookup(load_balancer_profile.value, "outbound_ip_prefix_ids", null)
+        outbound_ports_allocated  = lookup(load_balancer_profile.value, "outbound_ports_allocated", null)
+        idle_timeout_in_minutes   = lookup(load_balancer_profile.value, "idle_timeout_in_minutes", null)
       }
     }
   }
@@ -356,7 +356,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   priority              = lookup(each.value, "priority", "Regular")
   spot_max_price        = lookup(each.value, "priority", "Regular") == "Spot" ? lookup(each.value, "spot_max_price", -1) : null
   eviction_policy       = lookup(each.value, "priority", "Regular") == "Spot" ? lookup(each.value, "eviction_policy", "Delete") : null
-  
+
   # Node labels and taints
   node_labels = lookup(each.value, "node_labels", {})
   node_taints = lookup(each.value, "node_taints", [])
@@ -386,7 +386,7 @@ resource "azurerm_kubernetes_cluster_node_pool" "this" {
   tags = merge(var.common_tags, var.additional_tags, {
     ResourceType = "AKSNodePool"
     PoolType     = lookup(each.value, "mode", "User")
-    PoolName     = each.key
+    NodePoolName = each.key
   })
 
   lifecycle {
